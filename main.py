@@ -43,4 +43,5 @@ def home():
     return render_template("home.html")
 
 if __name__ == "__main__":
-    socketio.run(app, debug=True) # automatically refreshes
+    # socketio.run(app, debug=True) # automatically refreshes
+    socketio.run(host='0.0.0.0') # deployment
