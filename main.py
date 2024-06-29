@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, redirect
+from flask import Flask, render_template, request, session, redirect, url_for
 from flask_socketio import join_room, leave_room, send, SocketIO
 import random
 from string import ascii_uppercase
@@ -20,6 +20,7 @@ def generate_unique_code(length):
 
 @app.route("/", methods=["POST","GET"])
 def home():
+    session.clear()
     if request.method == "POST":
         name = request.form.get("name") # dictionary 에서 key 가 "name" 인 애를 가져옴
         code = request.form.get("code")
@@ -28,20 +29,33 @@ def home():
         create = request.form.get("create", False) # join and create don't have a value(key).
         
         if not name: # this means the user didn't give a name or empty.
-            return render_template("home.html",error="Please enter a name.")
+            return render_template("home.html",error="Please enter a name.", code=code, name=name)
         
         if join != False and not code: # when user attempts to join but doesn't enter a code
-            return render_template("home.html",error="Please enter a room code.")
+            return render_template("home.html",error="Please enter a room code.", code=code, name=name)
     
         room = code
         if create != False:
             room = generate_unique_code(4)
             rooms[room] = {"members":0, "messages": []} # initializes rooms dictionary
         elif code not in rooms:
-            return render_template("home.html",error="Room does not exist.")
+            return render_template("home.html",error="Room does not exist.", code=code, name=name)
 
+        session["room"] = room
+        session["name"] = name # session is a semi-permanent way to store information about a user
+        # kind of a temporary data stored on a server
+        # don't want to ask the users for a name and a room code every single time they refresh the web page.
+        return redirect(url_for("room"))
     return render_template("home.html")
 
+@app.route("/")
+def room():
+    room = session.get("room")
+    if room is None or session.get("name") is None or room not in rooms: 
+        return redirect(url_for("home"))
+
+    return render_template("room.html")
+
 if __name__ == "__main__":
-    # socketio.run(app, debug=True) # automatically refreshes
-    socketio.run(host='0.0.0.0') # deployment
+    socketio.run(app, debug=True) # for development, automatically refreshes
+    # socketio.run(host='0.0.0.0') # for deployment
