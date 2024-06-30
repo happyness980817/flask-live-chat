@@ -9,7 +9,8 @@
             rows="3" 
             placeholder="Message" 
             name="message" 
-            id="message">
+            id="message"
+            onkeyup="enterkey()">
         <button 
             type="button" 
             name="send" 
@@ -48,6 +49,13 @@
         socketio.emit("message", { data: message.value });
         message.value = "";
     };
+
+    const enterkey = () => {
+        if (window.event.keyCode == 13) {
+            sendMessage();
+        }
+    }
+
 </script>
 {% for msg in messages %}
     <script type="text/javascript">
