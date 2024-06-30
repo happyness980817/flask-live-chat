@@ -103,5 +103,5 @@ def diconnect():
 
 
 if __name__ == "__main__":
-    socketio.run(app, debug=True) # for development, automatically refreshes
-    # socketio.run(host='0.0.0.0') # for deployment
+    # socketio.run(app, debug=True) # for development, automatically refreshes
+    socketio.run(host='0.0.0.0') # for deployment
